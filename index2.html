@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager with Sticky Notes</title>
+    <style>
+         :root {
+            --bg-color: #f9f9f9;
+            --text-color: #000;
+            --task-bg: #ffffff;
+            --news-bg: white;
+            --news-text: black;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0e2133; /* Navy blue background */
+            --text-color: #ffffff; /* White text */
+            --task-bg: #031527; /* Dark blue task background */
+            --news-bg: #071e35; /* Dark blue news background */
+            --news-text: #ffffff; /* White text for news */
+        }
+
+        body {
+            font-family: 'Geneva', sans-serif;
+            margin: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            grid-template-rows: auto auto;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+
+        #taskSection {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: var(--task-bg);
+        }
+
+        #taskContainer {
+            margin-top: 20px;
+        }
+
+        .task {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            background-color: var(--task-bg);
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        input {
+            margin-right: 10px;
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        #dateTime {
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #temperature {
+            text-align: right;
+            font-size: 16px;
+            margin-top: 1px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        #newsTicker {
+            grid-column: span 2;
+            background-color: var(--news-bg);
+            color: var(--news-text);
+            padding: 10px;
+            overflow: hidden;
+            white-space: nowrap;
+            box-sizing: border-box;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        #newsTicker span {
+            display: inline-block;
+            animation: ticker 250s linear infinite;
+        }
+
+        @keyframes ticker {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+
+        .toggle-container {
+            text-align: right;
+            margin-top: 1px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        #stickyNotesSection {
+            grid-column: span 2;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: var(--task-bg);
+        }
+
+        .note {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff8dc; /* Yellowish background */
+            color: #333;
+            position: relative;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .note textarea {
+            width: 100%;
+            height: 80px;
+            border: none;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            background-color: transparent;
+            box-sizing: border-box;
+        }
+
+        #passwordManagerSection {
+        margin-top: 10px;
+        }
+
+        #timerSection {
+        margin-top: 1px; /* Adjust this value as needed */
+}
+        #logoContainer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        
+        
+    }   
+
+    #logoContainer img {
+            height: 65px;
+            width: auto;
+        }
+
+    </style>
+</head>
+
+
+<body data-theme="light">
+    <div id="taskSection" style="position: relative; padding-top: 10px; padding-left: 10px; border: 1px solid #ccc; border-radius: 5px;">
+        <div style="position: absolute; top: -2px; left: 1780px;">
+            <img src="princeton-logo.png" alt="Logo" style="height: 70px; width: auto;">
+        </div>
+        <h2>Current</h2>
+        <form id="taskForm" onsubmit="return false;">
+            <input type="text" id="taskInput" placeholder="Enter task">
+            <button type="button" id="addTaskButton">Add Task</button>
+        </form>
+        <div id="taskContainer"><div class="task"><span>Jills Laptop</span><button>Complete</button></div><div class="task"><span>Lauras Airplay</span><button>Complete</button></div><div class="task"><span>Onboard Zoes RA</span><button>Complete</button></div><div class="task"><span>Renew Parking</span><button>Complete</button></div><div class="task"><span>Shara Password</span><button>Complete</button></div><div class="task"><span>Emmas Laptop</span><button>Complete</button></div><div class="task"><span>Troubleshoot 314</span><button>Complete</button></div><div class="task"><span>Add museum events for Leslie</span><button>Complete</button></div><div class="task"><span>Password to Ashley</span><button>Complete</button></div><div class="task"><span>Erin Email</span><button>Complete</button></div></div>
+    </div>
+
+
+
+    <div id="dateTime">
+        <div id="date">Sunday, January 19</div>
+        <div id="clock">19:21:59</div>
+        <div id="temperature">27.7°F - Snowfall: Heavy intensity</div>
+        <div class="toggle-container">
+            <label class="toggle-label">
+                <input type="checkbox" id="themeToggle"> Dark Mode
+            </label>
+        <label><input type="checkbox" id="princetonToggle"> Princeton</label><label><input type="checkbox" id="allNewsToggle"> All</label></div>
+        <div class="button-container">
+            <button onclick="openUrl('https://mme-casper.princeton.edu:8443/')">JamF</button>
+            <button onclick="openUrl('https://intune.microsoft.com/#home')">Intune</button>
+            <button onclick="openUrl('https://avacmd34.scala.com:44324/ContentManager/#dashboard')">Scala</button>
+            <button onclick="openUrl('https://console.us2.crashplan.com/login/#/login')">Crashplan</button>
+            <button onclick="openUrl('https://princeton.service-now.com/now/nav/ui/classic/params/target/incident_list.do%3Fsysparm_query%3Dassignment_group%253Dd131b30a4f269200c29a28928110c71f%26sysparm_first_row%3D1%26sysparm_view%3D')">ServiceNow</button>
+            <button onclick="openUrl('https://princetonu.sharepoint.com/sites/puam/SitePages/Home.aspx')">Sharepoint</button>
+            <button onclick="openUrl('https://princeton.emscloudservice.com/web/BrowseForSpace.aspx#')">EMS</button>
+            <button onclick="openUrl('https://atrium.artmuseum.princeton.edu/pages/home.php?login=true')">Atrium</button>
+            <button onclick="openUrl('https://artmuseum.princeton.edu/')">PUAM Site</button>
+        </div>
+
+
+        
+        <div id="passwordManagerSection">
+            <button id="pwManagerButton">ServiceAccounts</button>
+            <div id="credentials" style="display: none; margin-top: 10px;">
+                <h3>Stored Credentials</h3>
+                <ul id="credentialsList"></ul>
+                <button id="hideCredentialsButton" style="margin-top: 10px;">Hide</button>
+            </div>
+        </div>
+        
+        <div id="passwordModal" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 10px; background-color: rgb(255, 255, 255); border: 1px solid rgb(204, 204, 204); z-index: 1000; width: 300px; text-align: center;">
+            <p style="margin: 0 0 10px;">Enter Key:</p>
+            <input type="password" id="passwordInput" style="width: 90%; padding: 5px; margin-bottom: 10px; border: 1px solid #ccc;">
+            <div>
+                <button id="submitPassword" style="padding: 5px 10px; margin-right: 5px;">Submit</button>
+                <button id="cancelPassword" style="padding: 5px 10px;">Cancel</button>
+            </div>
+        </div>
+        
+        <div id="quoteSection" style="margin-top: 10px;">
+            <button id="fetchQuoteButton">Quote</button>
+            <button id="hideQuoteButton" style="margin-left: 10px;">Hide</button>
+            <p id="quoteDisplay" style="margin-top: 10px; margin-bottom: 0.5px; font-style: italic;"></p>
+        </div>
+
+        <div id="timerSection" style="margin-top: 10px;">
+            <button id="setTimerButton" class="standard-button">Timer</button>
+        </div>        
+        
+        <div id="timerDisplay" style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); padding: 5px 10px; background-color: rgb(249, 249, 249); border: 1px solid rgb(204, 204, 204); font-size: 16px; z-index: 1000; display: none; align-items: center; gap: 10px;">
+            <span id="timerCountdown"></span>
+            <button id="stopTimerButton" style="display: none; padding: 5px 10px; background-color: #dcc1c1; color: rgb(0, 0, 0); border: none; border-radius: 5px; cursor: pointer;">Stop</button>
+        </div>
+        
+        <div id="infoSection" style="margin-top: 10px;">
+            <button id="infoButtonPUAM" class="standard-button">PUAM-IT Info</button>
+            <button id="infoButtonOnboarding" class="standard-button">Onboarding Docs</button>
+            
+            <!-- PUAM-IT Info -->
+            <div id="infoBoxPUAM" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f9f9f9; color: #000; z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto; text-align: left;">
+                <button id="closeInfoButtonPUAM" style="position: absolute; top: 10px; right: 10px; padding: 10px 15px; background-color: #4b4b4b; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+                <h1>Information</h1>
+                
+                <!-- Printers Section -->
+                <section id="printersSection" style="margin-top: 20px;">
+                    <h2>Printers</h2>
+                    <p>Windows key + R </p>
+                    <p>\\ss226w.princeton.edu</p>
+                </section>
+        
+                <!-- TMS Install Section -->
+                <section id="tmsSection" style="margin-top: 20px;">
+                    <h2>TMS Install</h2>
+                    <p>PC. Remote Desktop version. Control Panel -&gt; Remote App. https://amu224w.princeton.edu/RDWeb/feed/webfeed.aspx. Credientals: PRINCETON/NetID</p>
+                    <p> Connecting Local App. OBDC 32 bit run as admin. SYstem DSN Tab -&gt; ADD. SQL Server Native Client. Name: museum. server: amu220w.princeton.edu. Change deafutl database to 'TMS'</p>
+                    <p>Mac- Work Resources. Add Workspace</p>
+                </section>
+        
+                <!-- Shared Drivers Section -->
+                <section id="sharedDriversSection" style="margin-top: 20px;">
+                    <h2>Shared Drives</h2>
+                    <p>Common Drive - \\files.princeton.edu\Dept\AMUSEUM\COMMON</p>
+                    <p>TMS Drive - \\amu224w.princeton.edu\TMS</p>
+                </section>
+            </div>
+        
+            <!-- Onboarding Docs Info -->
+            <div id="infoBoxOnboarding" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f9f9f9; color: #000; z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto; text-align: left;">
+                <button id="closeInfoButtonOnboarding" style="position: absolute; top: 10px; right: 10px; padding: 10px 15px; background-color: #4b4b4b; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
+                <h1>Onboarding Documents</h1>
+                <section style="margin-top: 20px;">
+                    <h2>Macs</h2>
+                    <p>Welcome to the Princeton University Art Museum IT team. Below are the essential documents and steps for onboarding:</p>
+                    <h2>PCs</h2>
+                    <p>Welcome to the Princeton University Art Museum IT team. Below are the essential documents and steps for onboarding:</p>
+                    <h2>Other</h2>
+                    <p>Welcome to the Princeton University Art Museum IT team. Below are the essential documents and steps for onboarding:</p>
+
+                </section>
+                
+            </div>
+        </div>
+        
+        <div id="timerModal" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 10px; background-color: #fff; border: 1px solid #ccc; z-index: 1000; width: 300px; text-align: center;">
+            <p style="margin: 0 0 10px;">Set Timer Duration (minutes):</p>
+            <input type="number" id="timerInput" style="width: 90%; padding: 5px; margin-bottom: 10px; border: 1px solid #ccc;">
+            <div>
+                <button id="startTimerButton" style="padding: 5px 10px; margin-right: 5px;">Start</button>
+                <button id="cancelTimerButton" style="padding: 5px 10px;">Cancel</button>
+            </div>
+
+            <div id="dateTime" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                <div>
+                    <div id="date"></div>
+                    <div id="clock"></div>
+                </div>
+                <button id="stopTimerButton" style="display: none; padding: 5px 10px; background-color: #FF0000; color: rgb(53, 52, 52); border: none; border-radius: 5px; cursor: pointer;">Stop Timer</button>
+            </div>
+
+            
+            
+        </div>
+        
+        
+    </div>
+
+    <div id="newsTicker">
+        <span id="news">South Korean court extends President Yoon’s detention, angering supporters - CNN | Chiefs take early lead over Texans after big opening kickoff return - NBC Sports | Extreme cold forecast for much of US in coming days, including unusual snow in the Gulf Coast area - The Associated Press | Trump is arriving in Washington for inaugural celebrations to mark his return to power - The Associated Press | Isabella Rossellini Honors David Lynch With Heartbreaking 5-Word Statement - HuffPost | Trump plans to intensify immigration enforcement soon after inauguration, source says - Reuters | Creighton 68-63 UConn (Jan 18, 2025) Game Recap - ESPN | Snoop Dogg Performed At A Trump Inauguration Event, And People Have A Lot To Say - Yahoo Entertainment | Trump says he will ‘most likely’ delay TikTok ban temporarily, but has not made final decision - CNN | Man’s dramatic rescue of dog from freezing river in Vermont caught on video - The Associated Press | Thousands rally at People’s March in D.C. to protest Trump - The Washington Post | Justice Department sues Walgreens over alleged unlawful opioid prescriptions - The Washington Post | Nintendo Switch 2 backwards compatability was "almost unavoidable" because players have a total catalogue of 1billion+ games they still want to play - Gamesradar | Trump launched a meme coin and it became worth $32 billion overnight - Axios | Georgia Halts Poultry Sales in State After Bird Flu Is Detected - Bloomberg | First residents allowed back to communities ravaged by Palisades Fire - KTLA Los Angeles | Dozens injured in chairlift accident at Spanish ski resort - CBS News | This Week In Space podcast: Episode 144 — The great lunar armada - Space.com | Commanders vs. Lions, Texans vs. Chiefs prediction: NFL Divisional Round picks, odds - New York Post  | ONIX Arc B580 graphics cards debut on US market with competitive pricing - VideoCardz.com | Ukraine: Three killed in strike on central Kyiv, officials say - BBC.com | Man found guilty in India doctor rape and murder case - BBC.com | Microsoft’s Forced Upgrade—New Warning For 450 Million Windows PC Owners - Forbes | Jimmy Butler says 'whole truth will come out' about his trade demand following relatively tame return to Heat - CBS Sports | ​Cancer cases surge in young; simple lifestyle changes to lower your risk - The Times of India | Before Apple's AI Went Haywire and Started Making Up Fake News, Its Engineers Warned of Deep Flaws With the Tech - Futurism | Stock-market rally depends on answer to this ‘real question’ about bond yields - MarketWatch | Watch doorbell camera capture rare meteorite strike in Canada - Phys.org | Love a good midnight snack? 5 healthy options that won’t mess with your sleep - Yahoo Life | Taylor Swift's NYC Appearance on Friday Fuels Chiefs-Texans Concerns - Athlon Sports | Moss Landing battery fire: A ‘Three Mile Island’ for key renewable energy industry? - The Mercury News | 'Dark oxygen' mission takes aim at other worlds - BBC.com | Israeli cabinet approves Gaza hostage and ceasefire deal - Axios | HHS invests nearly $600 million in Moderna’s bird flu vaccine development - CNN | Mars's two distinct hemispheres caused by mantle convection not giant impacts, study claims - Phys.org | Insurers’ Rule Change Puts California Homeowners on the Hook for L.A. Fire - The Wall Street Journal</span>
+    </div>
+
+    <div id="stickyNotesSection">
+        <h2>Notes</h2>
+        <button id="addNoteButton">Add Note</button>
+        <div id="notesContainer"><div class="note"><textarea placeholder="Write your note here..."></textarea><button>Delete</button></div><div class="note"><textarea placeholder="Write your note here..."></textarea><button>Delete</button></div></div>
+    </div>
+
+    <script>
+        const addTaskButton = document.getElementById('addTaskButton');
+        const taskInput = document.getElementById('taskInput');
+        const taskContainer = document.getElementById('taskContainer');
+        const clock = document.getElementById('clock');
+        const date = document.getElementById('date');
+        const temperature = document.getElementById('temperature');
+        const news = document.getElementById('news');
+        const themeToggle = document.getElementById('themeToggle');
+        const addNoteButton = document.getElementById('addNoteButton');
+        const notesContainer = document.getElementById('notesContainer');
+
+        // Add Task functionality with persistence
+        function addTask(taskTitle) {
+            const taskElement = document.createElement('div');
+            taskElement.classList.add('task');
+
+            const taskText = document.createElement('span');
+            taskText.textContent = taskTitle;
+
+            const completeButton = document.createElement('button');
+            completeButton.textContent = 'Complete';
+            completeButton.addEventListener('click', () => {
+                taskElement.remove();
+                saveTasks();
+            });
+
+            taskElement.appendChild(taskText);
+            taskElement.appendChild(completeButton);
+
+            taskContainer.appendChild(taskElement);
+        }
+
+        function saveTasks() {
+            const tasks = Array.from(taskContainer.children).map(task => task.querySelector('span').textContent);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            tasks.forEach(taskTitle => addTask(taskTitle));
+        }
+
+        addTaskButton.addEventListener('click', () => {
+            const taskTitle = taskInput.value.trim();
+            if (taskTitle) {
+                addTask(taskTitle);
+                saveTasks();
+                taskInput.value = ''; // Clear input field
+            }
+        });
+
+        taskInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const taskTitle = taskInput.value.trim();
+                if (taskTitle) {
+                    addTask(taskTitle);
+                    saveTasks();
+                    taskInput.value = ''; // Clear input field
+                }
+            }
+        });
+
+        // Live clock functionality
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            clock.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Live date functionality
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            date.textContent = now.toLocaleDateString(undefined, options);
+        }
+
+        // Fetch temperature for Princeton, NJ
+        async function fetchTemperature() {
+    try {
+        const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=40.3573&longitude=-74.6672&current_weather=true');
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        const tempFahrenheit = (data.current_weather.temperature * 9 / 5) + 32;
+        const weatherCode = data.current_weather.weathercode;
+
+        // Map weather codes to descriptions
+        const weatherDescriptions = {
+            0: 'Clear sky',
+            1: 'Mainly clear',
+            2: 'Partly cloudy',
+            3: 'Overcast',
+            45: 'Foggy',
+            48: 'Depositing rime fog',
+            51: 'Drizzle: Light',
+            53: 'Drizzle: Moderate',
+            55: 'Drizzle: Dense intensity',
+            61: 'Rain: Slight',
+            63: 'Rain: Moderate',
+            65: 'Rain: Heavy intensity',
+            71: 'Snowfall: Slight',
+            73: 'Snowfall: Moderate',
+            75: 'Snowfall: Heavy intensity',
+            80: 'Rain showers: Slight',
+            81: 'Rain showers: Moderate',
+            82: 'Rain showers: Violent',
+            85: 'Snow showers: Slight',
+            86: 'Snow showers: Heavy',
+            95: 'Thunderstorm: Slight or moderate',
+            96: 'Thunderstorm with hail: Slight',
+            99: 'Thunderstorm with hail: Heavy',
+        };
+
+        const weatherDescription = weatherDescriptions[weatherCode] || 'Unknown';
+        temperature.textContent = `${tempFahrenheit.toFixed(1)}°F - ${weatherDescription}`;
+    } catch (error) {
+        console.error('Error fetching temperature:', error);
+        temperature.textContent = 'Unable to fetch temperature';
+    }
+}
+
+        // Set an interval to fetch temperature every 20 minutes (1200000 milliseconds)
+        fetchTemperature(); // Fetch initially
+        setInterval(fetchTemperature, 1200000);
+
+        // Fetch latest news for the ticker
+        async function fetchNews(query = '') {
+    try {
+        const url = query
+            ? `https://newsapi.org/v2/everything?q=${query}&pageSize=50&apiKey=d8559e6eeafe4336860dfee2c843808a`
+            : 'https://newsapi.org/v2/top-headlines?language=en&category=general&pageSize=50&apiKey=d8559e6eeafe4336860dfee2c843808a';
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('News API Response:', data); // Debugging: Log the response
+
+        if (!data.articles || data.articles.length === 0) {
+            throw new Error('No articles found in the API response.');
+        }
+
+        const headlines = data.articles.map(article => article.title).join(' | ');
+        news.textContent = headlines;
+    } catch (error) {
+        console.error('Error fetching news:', error);
+        news.textContent = 'Unable to load news at this time.';
+    }
+}
+
+        // Add Princeton and All News Toggles
+        const toggleContainer = document.querySelector('.toggle-container');
+        const princetonCheckbox = document.createElement('label');
+        const allNewsCheckbox = document.createElement('label');
+
+        princetonCheckbox.innerHTML = `<input type="checkbox" id="princetonToggle"> Princeton`;
+        allNewsCheckbox.innerHTML = `<input type="checkbox" id="allNewsToggle"> All`;
+
+        toggleContainer.appendChild(princetonCheckbox);
+        toggleContainer.appendChild(allNewsCheckbox);
+
+        const princetonToggle = document.getElementById('princetonToggle');
+        const allNewsToggle = document.getElementById('allNewsToggle');
+
+        princetonToggle.addEventListener('change', () => {
+            if (princetonToggle.checked) {
+                allNewsToggle.checked = false;
+                fetchNews('Princeton University');
+            }
+        });
+
+        allNewsToggle.addEventListener('change', () => {
+            if (allNewsToggle.checked) {
+                princetonToggle.checked = false;
+                fetchNews();
+            }
+        });
+
+        //Sticky Notes
+
+                function saveNotes() {
+            const notes = Array.from(notesContainer.children).map(note => ({
+                content: note.querySelector('textarea').value,
+            }));
+            localStorage.setItem('notes', JSON.stringify(notes));
+        }
+
+        function loadNotes() {
+            const savedNotes = JSON.parse(localStorage.getItem('notes') || '[]');
+            savedNotes.forEach(noteData => {
+                createNote(noteData.content);
+            });
+        }
+
+        function createNote(content = '') {
+            const note = document.createElement('div');
+            note.classList.add('note');
+
+            const textarea = document.createElement('textarea');
+            textarea.placeholder = 'Write your note here...';
+            textarea.value = content;
+            textarea.addEventListener('input', saveNotes); // Save on input
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', () => {
+                note.remove();
+                saveNotes(); // Save after deleting
+            });
+
+            note.appendChild(textarea);
+            note.appendChild(deleteButton);
+            notesContainer.appendChild(note);
+        }
+
+        addNoteButton.addEventListener('click', () => createNote());
+        loadNotes(); // Load notes on page load
+
+        // Dark Mode
+
+    themeToggle.addEventListener('change', () => {
+        const isDarkMode = themeToggle.checked;
+        document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+        saveThemePreference(isDarkMode);
+ });
+
+    function saveThemePreference(isDarkMode) {
+    localStorage.setItem('darkMode', isDarkMode ? 'dark' : 'light');
+}
+
+function loadThemePreference() {
+    const savedTheme = localStorage.getItem('darkMode');
+    const isDarkMode = savedTheme === 'dark';
+    document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+    themeToggle.checked = isDarkMode;
+}
+
+// Call loadThemePreference on page load
+loadThemePreference();
+
+
+        // Optional: Refresh news periodically
+        setInterval(() => {
+            fetchNews(); // Default fetch of general news
+        }, 300000); // Every 5 minutes
+
+        // Initialize
+        setInterval(updateClock, 1000);
+        updateClock();
+        updateDate();
+        fetchTemperature();
+        fetchNews();
+        loadTasks(); // Load tasks from localStorage
+
+    
+        
+//Dark Mode Function 
+
+themeToggle.addEventListener('change', () => {
+    const isDarkMode = themeToggle.checked;
+    document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+    saveThemePreference(isDarkMode);
+});
+
+function saveThemePreference(isDarkMode) {
+    localStorage.setItem('darkMode', isDarkMode ? 'dark' : 'light');
+}
+
+function loadThemePreference() {
+    const savedTheme = localStorage.getItem('darkMode');
+    const isDarkMode = savedTheme === 'dark';
+    document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+    themeToggle.checked = isDarkMode;
+}
+
+// Call loadThemePreference on page load
+loadThemePreference();
+
+// Website Function - Incognito
+
+function openUrl(url) {
+    // Attempt to open the URL in a new incognito/private window
+    const win = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!win) {
+        ('hi');
+    }
+}
+
+// PW Manager
+
+const pwManagerButton = document.getElementById('pwManagerButton');
+const credentialsDiv = document.getElementById('credentials');
+const credentialsList = document.getElementById('credentialsList');
+const passwordModal = document.getElementById('passwordModal');
+const passwordInput = document.getElementById('passwordInput');
+const submitPassword = document.getElementById('submitPassword');
+const cancelPassword = document.getElementById('cancelPassword');
+
+// Store usernames, passwords, and DUO names
+const storedCredentials = [
+    { username: 'museum', password: 'pass123', duo: 'John Doe' },
+    { username: 'museumevents', password: 'admin123', duo: 'Jane Smith' },
+    { username: 'museumgiving', password: 'guest123', duo: 'Alice Brown' },
+    { username: 'puamexecassist', password: 'guest123', duo: 'Bob Johnson' },
+];
+
+// Show the modal on button click
+pwManagerButton.addEventListener('click', () => {
+    passwordModal.style.display = 'block';
+    passwordInput.value = ''; // Clear the input field
+});
+
+// Handle password submission
+submitPassword.addEventListener('click', () => {
+    const enteredPassword = passwordInput.value;
+    if (enteredPassword === '1234') {
+        credentialsDiv.style.display = 'block';
+        showCredentials();
+        passwordModal.style.display = 'none'; // Hide the modal
+    } else {
+        alert('Incorrect password!');
+    }
+});
+
+// Handle modal cancellation
+cancelPassword.addEventListener('click', () => {
+    passwordModal.style.display = 'none'; // Hide the modal
+});
+
+// Populate the credentials list
+function showCredentials() {
+    credentialsList.innerHTML = ''; // Clear previous content
+    storedCredentials.forEach(cred => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `Username: ${cred.username}, Password: ${cred.password}, DUO: ${cred.duo}`;
+        credentialsList.appendChild(listItem);
+    });
+}
+
+// Hide credentials functionality
+const hideCredentialsButton = document.getElementById('hideCredentialsButton');
+hideCredentialsButton.addEventListener('click', () => {
+    credentialsDiv.style.display = 'none'; // Hide the credentials section
+});
+
+
+
+// Random Quote
+
+const fetchQuoteButton = document.getElementById('fetchQuoteButton');
+const hideQuoteButton = document.getElementById('hideQuoteButton'); // Corrected ID
+const quoteDisplay = document.getElementById('quoteDisplay');
+
+// Manually enter quotes
+const quotes = [
+    { content: 'Failure is not the destination.', author: 'Coach K' },
+    { content: 'In order to get better you change limits. And when you change limits you\'re gonna look bad & fail in front of people.', author: 'Coach K' },
+    { content: 'When you are knocked back, figure out why and then change.', author: 'Coach K' },
+];
+
+// Function to fetch a random quote
+function fetchRandomQuote() {
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    const randomQuote = quotes[randomIndex];
+    quoteDisplay.textContent = `"${randomQuote.content}" - ${randomQuote.author}`;
+    quoteDisplay.style.display = 'block'; // Ensure the quote is visible
+}
+
+// Function to hide the quote
+function hideQuote() {
+    quoteDisplay.style.display = 'none'; // Hide the quote
+}
+
+// Add event listeners
+fetchQuoteButton.addEventListener('click', fetchRandomQuote);
+hideQuoteButton.addEventListener('click', hideQuote);
+
+// Timer
+
+const setTimerButton = document.getElementById('setTimerButton');
+const timerModal = document.getElementById('timerModal');
+const timerInput = document.getElementById('timerInput');
+const startTimerButton = document.getElementById('startTimerButton');
+const cancelTimerButton = document.getElementById('cancelTimerButton');
+const timerDisplay = document.getElementById('timerDisplay');
+const timerCountdown = document.getElementById('timerCountdown');
+const stopTimerButton = document.getElementById('stopTimerButton');
+
+let timerInterval;
+
+// Show the timer modal
+setTimerButton.addEventListener('click', () => {
+    timerModal.style.display = 'block';
+    timerInput.value = ''; // Clear input field
+});
+
+// Start the timer
+startTimerButton.addEventListener('click', () => {
+    const minutes = parseInt(timerInput.value, 10);
+
+    if (isNaN(minutes) || minutes <= 0) {
+        alert('Please enter a valid number of minutes.');
+        return;
+    }
+
+    timerModal.style.display = 'none'; // Hide the modal
+    timerDisplay.style.display = 'block'; // Show the timer display
+
+    const endTime = Date.now() + minutes * 60000;
+
+    // Update the timer display every second
+    clearInterval(timerInterval); // Clear any existing interval
+    timerInterval = setInterval(() => {
+        const timeLeft = endTime - Date.now();
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerDisplay.style.display = 'none'; // Hide the timer display
+            alert('Timer ended!');
+        } else {
+            const minutesLeft = Math.floor(timeLeft / 60000);
+            const secondsLeft = Math.floor((timeLeft % 60000) / 1000);
+            timerCountdown.textContent = `${minutesLeft}m ${secondsLeft}s`;
+        }
+    }, 1000);
+});
+
+// Cancel the timer modal
+cancelTimerButton.addEventListener('click', () => {
+    timerModal.style.display = 'none'; // Hide the modal
+});
+
+// Show the "Stop Timer" button when the timer starts
+startTimerButton.addEventListener('click', () => {
+    stopTimerButton.style.display = 'inline-block'; // Show the stop button
+});
+
+// Stop the timer
+stopTimerButton.addEventListener('click', () => {
+    clearInterval(timerInterval); // Clear the timer interval
+    timerDisplay.style.display = 'none'; // Hide the timer display
+    stopTimerButton.style.display = 'none'; // Hide the stop button
+    alert('Timer stopped!');
+});
+
+// Hide timer display on initialization
+timerDisplay.style.display = 'none';
+
+
+// Knowledge Section
+
+const infoButtonPUAM = document.getElementById('infoButtonPUAM');
+const infoButtonOnboarding = document.getElementById('infoButtonOnboarding');
+
+const infoBoxPUAM = document.getElementById('infoBoxPUAM');
+const infoBoxOnboarding = document.getElementById('infoBoxOnboarding');
+
+const closeInfoButtonPUAM = document.getElementById('closeInfoButtonPUAM');
+const closeInfoButtonOnboarding = document.getElementById('closeInfoButtonOnboarding');
+
+// Show PUAM-IT Info
+infoButtonPUAM.addEventListener('click', () => {
+    infoBoxPUAM.style.display = 'block';
+    infoBoxOnboarding.style.display = 'none'; // Hide other box
+});
+
+// Show Onboarding Docs Info
+infoButtonOnboarding.addEventListener('click', () => {
+    infoBoxOnboarding.style.display = 'block';
+    infoBoxPUAM.style.display = 'none'; // Hide other box
+});
+
+// Close PUAM-IT Info
+closeInfoButtonPUAM.addEventListener('click', () => {
+    infoBoxPUAM.style.display = 'none';
+});
+
+// Close Onboarding Docs Info
+closeInfoButtonOnboarding.addEventListener('click', () => {
+    infoBoxOnboarding.style.display = 'none';
+});
+
+
+    </script>
+</body>
+</html>
