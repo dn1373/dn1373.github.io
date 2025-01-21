@@ -569,8 +569,8 @@ async function fetchNews(query = '') {
 
     try {
         const url = query
-            ? `https://newsapi.org/v2/everything?q=${query}&pageSize=100&apiKey=d8559e6eeafe4336860dfee2c843808a`
-            : 'https://newsapi.org/v2/top-headlines?language=en&category=general&pageSize=100&apiKey=d8559e6eeafe4336860dfee2c843808a';
+            ? `https://newsapi.org/v2/everything?q=${query}&pageSize=50&apiKey=d8559e6eeafe4336860dfee2c843808a`
+            : 'https://newsapi.org/v2/top-headlines?language=en&category=general&pageSize=50&apiKey=d8559e6eeafe4336860dfee2c843808a';
 
         const response = await fetch(url);
 
